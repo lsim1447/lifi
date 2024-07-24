@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { Token } from '../../../../types/token' 
+import { Token } from '../../../../types/token';
+import { TokenDetails } from '@/components/TokenDetails';
 
 interface TokenDetailPageProps {
   token: Token;
@@ -7,26 +8,27 @@ interface TokenDetailPageProps {
 
 const TokenDetailPage = ({ token }: TokenDetailPageProps) => {
   return (
-    <div>
-      <h1>{token.name}</h1>
-      <img src={token.logoURI} alt={token.name} />
-      <p>Address: {token.address}</p>
-    </div>
+    <>
+      <TokenDetails token={token} />
+    </>
   );
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const response = await fetch('https://li.quest/v1/tokens', { method: 'GET', headers: { accept: 'application/json' }});
-  const data = await response.json()
-  const tokens: Token[] = data.tokens["1"];
+  const response = await fetch('https://li.quest/v1/tokens', {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+  });
+  const data = await response.json();
+  const tokens: Token[] = data.tokens['1'].slice(0, 100);
 
   const paths = tokens.map((token) => {
     return {
-      params: { 
+      params: {
         token: token.address,
         chain: token.chainId.toString(),
       },
-    }
+    };
   });
 
   return { paths, fallback: 'blocking' };
@@ -34,9 +36,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { token, chain } = context.params!;
-  const url = `https://li.quest/v1/token?chain=${Number(chain)}&token=${token}`
-  const response = await fetch(url, { method: 'GET', headers: { accept: 'application/json' }});
-  const data = await response.json()
+  const url = `https://li.quest/v1/token?chain=${Number(chain)}&token=${token}`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+  });
+  const data = await response.json();
 
   return {
     props: {

@@ -2,15 +2,28 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'raw.githubusercontent.com',
-      'static.debank.com',
-      'assets.coingecko.com',
-      's2.coinmarketcap.com',
-      'token-icons.s3.amazonaws.com',
-      'etherscan.io',
-      '*',
-      '**',
+    remotePatterns: [
+      {
+        hostname: 'raw.githubusercontent.com',
+      },
+      {
+        hostname: 'static.debank.com',
+      },
+      {
+        hostname: 'assets.coingecko.com',
+      },
+      {
+        hostname: 's2.coinmarketcap.com',
+      },
+      {
+        hostname: 'token-icons.s3.amazonaws.com',
+      },
+      {
+        hostname: 'etherscan.io',
+      },
+      {
+        hostname: 'fakeimg.pl',
+      },
     ]
   },
   compiler: {

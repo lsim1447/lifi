@@ -5,6 +5,6 @@ export interface Token {
   decimals: number;
   name: string;
   coinKey: string;
-  logoURI: string;
+  logoURI?: string;
   priceUSD: string;
 }

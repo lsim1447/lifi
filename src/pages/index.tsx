@@ -1,19 +1,25 @@
 import { GetServerSideProps } from 'next';
-import { useState } from 'react';
-import { Token } from '../types/token'
+import { useEffect, useState } from 'react';
+import { Token } from '../types/token';
 import styled from 'styled-components';
 import { TokenList } from '../components/TokenList';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface OverviewPageProps {
   tokens: Token[];
 }
 
 const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredTokens = tokens.filter(token =>
-    token.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    setFilteredTokens(
+      tokens.filter((token) =>
+        token.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [searchTerm, setFilteredTokens, tokens]);
 
   return (
     <Container>
@@ -21,12 +27,16 @@ const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
 
       <SearchInput
         type="text"
-        placeholder="Search tokens"
+        placeholder="Search tokens by name"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      <TokenList tokens={filteredTokens}/>
+      <motion.div layout transition={{ duration: '0.6' }}>
+        <AnimatePresence>
+          <TokenList tokens={filteredTokens} />
+        </AnimatePresence>
+      </motion.div>
     </Container>
   );
 };
@@ -36,7 +46,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 2em;
+  font-size: 3em;
   margin-bottom: 20px;
 `;
 
@@ -49,25 +59,28 @@ const SearchInput = styled.input`
 `;
 
 export const getServerSideProps: GetServerSideProps = async () => {
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   let props: Record<string, any> = {
-    tokens: []
-  }
+    tokens: [],
+  };
 
   try {
-    const response = await fetch('https://li.quest/v1/tokens', { method: 'GET', headers: { accept: 'application/json' }});
-    const data = await response.json()
-    const tokens: Token[] = data.tokens["1"].slice(0, 10);;
+    const response = await fetch('https://li.quest/v1/tokens', {
+      method: 'GET',
+      headers: { accept: 'application/json' },
+    });
+    const data = await response.json();
+    const tokens: Token[] = data.tokens['1'].slice(0, 1000);
 
     props = {
       tokens: tokens,
-    }
-  
+    };
   } catch (err) {
-    throw new Error('Error during data fetch.')
+    throw new Error('Error during data fetch.');
   }
 
   return {
-    props
+    props,
   };
 };
 

@@ -1,2 +1,2 @@
-export { TokenListItem } from './TokenListItem'
-export type { TokenListItemProps } from './TokenListItem'
+export { TokenListItem } from './TokenListItem';
+export type { TokenListItemProps } from './TokenListItem';
