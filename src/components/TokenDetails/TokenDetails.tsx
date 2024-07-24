@@ -22,7 +22,7 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
         </FlexContainer>
 
         <TokenImage
-          src={token?.logoURI || 'https://fakeimg.pl/40x40'}
+          src={token?.logoURI || 'https://fakeimg.pl/150x150'}
           alt={token.name || ''}
           width={150}
           height={150}
