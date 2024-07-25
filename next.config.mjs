@@ -4,25 +4,12 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'raw.githubusercontent.com',
+        protocol: 'https',
+        hostname: '**', // Wildcard to match any hostname
       },
       {
-        hostname: 'static.debank.com',
-      },
-      {
-        hostname: 'assets.coingecko.com',
-      },
-      {
-        hostname: 's2.coinmarketcap.com',
-      },
-      {
-        hostname: 'token-icons.s3.amazonaws.com',
-      },
-      {
-        hostname: 'etherscan.io',
-      },
-      {
-        hostname: 'fakeimg.pl',
+        protocol: 'http',
+        hostname: '**', // Wildcard to match any hostname
       },
     ]
   },

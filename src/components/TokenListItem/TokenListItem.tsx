@@ -1,19 +1,21 @@
 import Link from 'next/link';
-import { Token } from '../../types/token';
+import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
+import { SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
 
 export interface TokenListItemProps {
   token: Token;
+  lastItemRef: ((node: HTMLLIElement) => void) | null;
 }
 
-export const TokenListItem = ({ token }: TokenListItemProps) => {
+export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
   return (
-    <Container>
+    <Container ref={lastItemRef}>
       <Link legacyBehavior href={`/tokens/${token.address}/${token.chainId}`}>
         <a>
           <TokenImage
-            src={token?.logoURI || 'https://fakeimg.pl/40x40'}
+            src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
             alt={token.name}
             width={40}
             height={40}

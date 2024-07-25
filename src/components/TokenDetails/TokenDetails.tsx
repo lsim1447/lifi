@@ -1,6 +1,7 @@
 import { Token } from '../../types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
+import { MEDIUM_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
 
 export interface TokenDetailsProps {
   token: Token;
@@ -22,7 +23,7 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
         </FlexContainer>
 
         <TokenImage
-          src={token?.logoURI || 'https://fakeimg.pl/150x150'}
+          src={token?.logoURI || MEDIUM_PLACEHOLDER_IMAGE_URL}
           alt={token.name || ''}
           width={150}
           height={150}

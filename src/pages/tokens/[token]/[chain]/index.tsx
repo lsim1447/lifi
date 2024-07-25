@@ -1,6 +1,8 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { Token } from '../../../../types/token';
 import { TokenDetails } from '@/components/TokenDetails';
+import Link from 'next/link';
+import styled from 'styled-components';
 
 interface TokenDetailPageProps {
   token: Token;
@@ -9,10 +11,30 @@ interface TokenDetailPageProps {
 const TokenDetailPage = ({ token }: TokenDetailPageProps) => {
   return (
     <>
+      <ButtonContainer>
+        <BackButtonStyle href={'/'}>
+          {'< '}Back to the Token Overview page
+        </BackButtonStyle>
+      </ButtonContainer>
+
       <TokenDetails token={token} />
     </>
   );
 };
+
+const BackButtonStyle = styled(Link)`
+  background-color: black;
+  border: 1px solid grey;
+  border-radius: 5px;
+  color: white;
+  padding: 6px 12px;
+`;
+
+const ButtonContainer = styled.div`
+  text-align: center;
+  margin-top: 24px;
+  margin-bottom: 24px;
+`;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const response = await fetch('https://li.quest/v1/tokens', {

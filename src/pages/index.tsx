@@ -70,7 +70,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       headers: { accept: 'application/json' },
     });
     const data = await response.json();
-    const tokens: Token[] = data.tokens['1'];
+    const tokens: Token[] = Object.values(data.tokens).flat() as Token[];
 
     props = {
       tokens: tokens,
