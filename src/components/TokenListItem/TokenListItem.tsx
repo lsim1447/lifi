@@ -15,6 +15,12 @@ export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
     <Container ref={lastItemRef}>
       <Link legacyBehavior href={`/tokens/${token.address}/${token.chainId}`}>
         <a>
+          <FavoriteIcon
+            favorited={Boolean(token.isFavorite)}
+            onClick={() => {}}
+          >
+            ★
+          </FavoriteIcon>
           <TokenImage
             src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
             alt={token.name}
@@ -66,4 +72,9 @@ const TokenAddress = styled.span`
   font-size: 14px;
   font-weight: 300;
   overflow-wrap: anywhere;
+`;
+
+const FavoriteIcon = styled.span<{ favorited: boolean }>`
+  cursor: pointer;
+  color: ${({ favorited }) => (favorited ? 'gold' : 'grey')};
 `;

@@ -6,15 +6,52 @@ import {
   MEDIUM_PLACEHOLDER_IMAGE_URL,
 } from '@/lib/constants';
 import { colors } from '@/lib/colors';
+import { useEffect, useState } from 'react';
 
 export interface TokenDetailsProps {
   token: Token;
 }
 
 export const TokenDetails = ({ token }: TokenDetailsProps) => {
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedFavorites = JSON.parse(
+      localStorage.getItem('favorites') || '[]'
+    );
+    setFavorites(savedFavorites);
+  }, []);
+
+  useEffect(() => {
+    setIsFavorite(favorites.includes(`${token.address}-${token.chainId}`));
+  }, [favorites]);
+
+  const handleFavoriteIconOnClick = () => {
+    let updatedFavorites = [...favorites];
+    const uniqueIdentifier: string = `${token.address}-${token.chainId}`;
+
+    if (!favorites.includes(uniqueIdentifier)) {
+      updatedFavorites.push(uniqueIdentifier);
+    } else {
+      updatedFavorites = updatedFavorites.filter(
+        (favoriteItem) => favoriteItem !== uniqueIdentifier
+      );
+    }
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  };
+
   return (
     <Container>
       <TokenDetailsContainer>
+        <FavoriteIcon
+          favorited={Boolean(isFavorite)}
+          onClick={() => handleFavoriteIconOnClick()}
+        >
+          ★
+        </FavoriteIcon>
         <TokenTextInfoContainer>
           <TokenName>
             {token.name} · {token.symbol} · {token.coinKey}
@@ -36,6 +73,11 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
     </Container>
   );
 };
+
+const FavoriteIcon = styled.span<{ favorited: boolean }>`
+  cursor: pointer;
+  color: ${({ favorited }) => (favorited ? 'gold' : 'grey')};
+`;
 
 const Container = styled.div`
   display: flex;

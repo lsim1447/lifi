@@ -4,50 +4,103 @@ import { Token } from '@/types/token';
 import styled from 'styled-components';
 import { TokenList } from '@/components/TokenList';
 import { AnimatePresence, motion } from 'framer-motion';
+import { device } from '@/lib/device';
 
 interface OverviewPageProps {
   tokens: Token[];
 }
 
 const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const [favoriteTokens, setFavoriteTokens] = useState<Token[]>(tokens);
   const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  useEffect(() => {
+    const savedFavorites = JSON.parse(
+      localStorage.getItem('favorites') || '[]'
+    );
+    setFavorites(savedFavorites);
+  }, []);
 
   useEffect(() => {
     setFilteredTokens(
-      tokens.filter((token) =>
-        token.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      tokens
+        .filter((token) =>
+          token.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .map((token: Token) => {
+          return {
+            ...token,
+            isFavorite: favorites.includes(`${token.address}-${token.chainId}`),
+          };
+        })
     );
-  }, [searchTerm, setFilteredTokens, tokens]);
+  }, [searchTerm, setFilteredTokens, tokens, favorites]);
+
+  useEffect(() => {
+    setFavoriteTokens(filteredTokens.filter((token) => token.isFavorite));
+  }, [filteredTokens]);
 
   return (
-    <Container>
+    <>
       <Title>Token Overview</Title>
+      <Container>
+        <div>
+          <ColumnTitle> All tokens </ColumnTitle>
+          <SearchInput
+            type="text"
+            placeholder="Search tokens by name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
-      <SearchInput
-        type="text"
-        placeholder="Search tokens by name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+          <motion.div layout transition={{ duration: '0.6' }}>
+            <AnimatePresence>
+              <TokenList tokens={filteredTokens} />
+            </AnimatePresence>
+          </motion.div>
+        </div>
 
-      <motion.div layout transition={{ duration: '0.6' }}>
-        <AnimatePresence>
-          <TokenList tokens={filteredTokens} />
-        </AnimatePresence>
-      </motion.div>
-    </Container>
+        <div>
+          <ColumnTitle> Favorite tokens </ColumnTitle>
+
+          <motion.div layout transition={{ duration: '0.6' }}>
+            <AnimatePresence>
+              <TokenList tokens={favoriteTokens} />
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </Container>
+    </>
   );
 };
 
 const Container = styled.div`
+  display: grid;
+  gap: 24px;
   padding: 20px;
+
+  @media ${device.mobile} {
+    grid-template-columns: 1fr;
+  }
+  @media ${device.tablet} {
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const Title = styled.h1`
   font-size: 3em;
   margin-bottom: 20px;
+  text-align: center;
+`;
+
+const ColumnTitle = styled.h2`
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: left;
 `;
 
 const SearchInput = styled.input`
