@@ -3,6 +3,7 @@ import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
 import { SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
+import { colors } from '@/lib/colors';
 
 export interface TokenListItemProps {
   token: Token;
@@ -31,7 +32,7 @@ export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
 };
 
 const Container = styled.li`
-  border-bottom: 1px solid grey;
+  border-bottom: 1px solid ${colors.greyLight};
   margin-bottom: 10px;
   padding: 12px 0px 12px 0px;
 
@@ -40,7 +41,7 @@ const Container = styled.li`
     align-items: center;
     gap: 32px;
     text-decoration: none;
-    color: #000;
+    color: ${colors.black};
   }
 `;
 

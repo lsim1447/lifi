@@ -1,7 +1,11 @@
-import { Token } from '../../types/token';
+import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
-import { MEDIUM_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
+import {
+  MEDIUM_IMAGE_SIZE,
+  MEDIUM_PLACEHOLDER_IMAGE_URL,
+} from '@/lib/constants';
+import { colors } from '@/lib/colors';
 
 export interface TokenDetailsProps {
   token: Token;
@@ -11,7 +15,7 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
   return (
     <Container>
       <TokenDetailsContainer>
-        <FlexContainer>
+        <TokenTextInfoContainer>
           <TokenName>
             {token.name} · {token.symbol} · {token.coinKey}
           </TokenName>
@@ -20,13 +24,13 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
           <TokenAddress>Address: {token.address}</TokenAddress>
           <TokenAddress>Chain ID: {token.chainId}</TokenAddress>
           <TokenAddress>Decimals: {token.decimals}</TokenAddress>
-        </FlexContainer>
+        </TokenTextInfoContainer>
 
         <TokenImage
           src={token?.logoURI || MEDIUM_PLACEHOLDER_IMAGE_URL}
           alt={token.name || ''}
-          width={150}
-          height={150}
+          width={MEDIUM_IMAGE_SIZE}
+          height={MEDIUM_IMAGE_SIZE}
         />
       </TokenDetailsContainer>
     </Container>
@@ -41,7 +45,7 @@ const Container = styled.div`
 `;
 
 const TokenDetailsContainer = styled.div`
-  background-color: #f4f4f4;
+  background-color: ${colors.greyLightest};
   border: 1px solid transparent;
   border-radius: 40px;
 
@@ -56,12 +60,12 @@ const TokenDetailsContainer = styled.div`
 `;
 
 const TokenImage = styled(Image)`
-  width: 150x;
-  height: 150px;
+  width: ${MEDIUM_IMAGE_SIZE}x;
+  height: ${MEDIUM_IMAGE_SIZE}px;
   margin-bottom: 24px;
 `;
 
-const FlexContainer = styled.div`
+const TokenTextInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;

@@ -1,8 +1,10 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { Token } from '../../../../types/token';
+import { Token } from '@/types/token';
 import { TokenDetails } from '@/components/TokenDetails';
 import Link from 'next/link';
 import styled from 'styled-components';
+import { colors } from '@/lib/colors';
+import { NR_OF_STATIC_TOKEN_DETAILS_PAGES } from '@/lib/constants';
 
 interface TokenDetailPageProps {
   token: Token;
@@ -11,11 +13,11 @@ interface TokenDetailPageProps {
 const TokenDetailPage = ({ token }: TokenDetailPageProps) => {
   return (
     <>
-      <ButtonContainer>
+      <NavigationContainer>
         <BackButtonStyle href={'/'}>
-          {'< '}Back to the Token Overview page
+          {'< '} Back to the Token Overview page
         </BackButtonStyle>
-      </ButtonContainer>
+      </NavigationContainer>
 
       <TokenDetails token={token} />
     </>
@@ -23,14 +25,13 @@ const TokenDetailPage = ({ token }: TokenDetailPageProps) => {
 };
 
 const BackButtonStyle = styled(Link)`
-  background-color: black;
-  border: 1px solid grey;
+  background-color: ${colors.black};
   border-radius: 5px;
-  color: white;
+  color: ${colors.white};
   padding: 6px 12px;
 `;
 
-const ButtonContainer = styled.div`
+const NavigationContainer = styled.div`
   text-align: center;
   margin-top: 24px;
   margin-bottom: 24px;
@@ -42,7 +43,10 @@ export const getStaticPaths: GetStaticPaths = async () => {
     headers: { accept: 'application/json' },
   });
   const data = await response.json();
-  const tokens: Token[] = data.tokens['1'].slice(0, 100);
+  const tokens: Token[] = data.tokens['1'].slice(
+    0,
+    NR_OF_STATIC_TOKEN_DETAILS_PAGES
+  ); // restrict to chain "1", first ~100 token (in order to not kill the API)
 
   const paths = tokens.map((token) => {
     return {
@@ -69,7 +73,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     props: {
       token: data,
     },
-    revalidate: 20, // ISR: Regenerate the page every 20 seconds
+    revalidate: 60,
   };
 };
 

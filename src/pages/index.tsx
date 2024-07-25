@@ -1,8 +1,8 @@
 import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
-import { Token } from '../types/token';
+import { Token } from '@/types/token';
 import styled from 'styled-components';
-import { TokenList } from '../components/TokenList';
+import { TokenList } from '@/components/TokenList';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface OverviewPageProps {

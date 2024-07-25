@@ -1,7 +1,8 @@
-import { Token } from '../../types/token';
+import { Token } from '@/types/token';
 import styled from 'styled-components';
 import { TokenListItem } from '../TokenListItem';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { NR_OF_TOKENS_TO_LOAD } from '@/lib/constants';
 
 export interface TokenListProps {
   tokens: Token[];
@@ -9,9 +10,8 @@ export interface TokenListProps {
 
 export const TokenList = ({ tokens }: TokenListProps) => {
   const [visibleItems, setVisibleItems] = useState<Token[]>([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
   const observer = useRef<IntersectionObserver | null>(null);
-  const itemsPerPage = 10;
 
   const lastItemRef = useCallback(
     (node: HTMLLIElement) => {
@@ -27,7 +27,7 @@ export const TokenList = ({ tokens }: TokenListProps) => {
   );
 
   useEffect(() => {
-    const newItems = tokens.slice(0, page * itemsPerPage);
+    const newItems: Token[] = tokens.slice(0, page * NR_OF_TOKENS_TO_LOAD);
     setVisibleItems(newItems);
   }, [page, tokens]);
 
