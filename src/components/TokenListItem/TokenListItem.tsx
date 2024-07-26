@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
-import { SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
+import { SMALL_IMAGE_SIZE, SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
 import { colors } from '@/lib/colors';
 
 export interface TokenListItemProps {
@@ -16,7 +16,7 @@ export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
       <Link legacyBehavior href={`/tokens/${token.address}/${token.chainId}`}>
         <a>
           <FavoriteIcon
-            favorited={Boolean(token.isFavorite)}
+            $favorited={Boolean(token.isFavorite)}
             onClick={() => {}}
           >
             ★
@@ -24,8 +24,8 @@ export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
           <TokenImage
             src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
             alt={token.name}
-            width={40}
-            height={40}
+            width={SMALL_IMAGE_SIZE}
+            height={SMALL_IMAGE_SIZE}
           />
           <TokenDetailsContaner>
             <TokenName>{token.name}</TokenName>
@@ -48,6 +48,10 @@ const Container = styled.li`
     gap: 32px;
     text-decoration: none;
     color: ${colors.black};
+  }
+
+  &: hover {
+    background-color: ${colors.greyLightest};
   }
 `;
 
@@ -74,7 +78,8 @@ const TokenAddress = styled.span`
   overflow-wrap: anywhere;
 `;
 
-const FavoriteIcon = styled.span<{ favorited: boolean }>`
+const FavoriteIcon = styled.span<{ $favorited: boolean }>`
+  color: ${({ $favorited }) => ($favorited ? colors.gold : colors.grey)};
   cursor: pointer;
-  color: ${({ favorited }) => (favorited ? 'gold' : 'grey')};
+  font-size: 24px;
 `;

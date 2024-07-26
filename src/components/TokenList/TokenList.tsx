@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { TokenListItem } from '../TokenListItem';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NR_OF_TOKENS_TO_LOAD } from '@/lib/constants';
+import { getUniqueIdentifier } from '@/lib/utils';
 
 export interface TokenListProps {
   tokens: Token[];
@@ -35,7 +36,7 @@ export const TokenList = ({ tokens }: TokenListProps) => {
     <Container>
       {visibleItems.map((token: Token, index: number) => (
         <TokenListItem
-          key={`${token.address}-${token.chainId}`}
+          key={getUniqueIdentifier(token)}
           lastItemRef={index === visibleItems.length - 1 ? lastItemRef : null}
           token={token}
         />

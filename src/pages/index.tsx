@@ -1,114 +1,100 @@
 import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
-import { Token } from '@/types/token';
-import styled from 'styled-components';
-import { TokenList } from '@/components/TokenList';
 import { AnimatePresence, motion } from 'framer-motion';
+import styled from 'styled-components';
+import { Tabs } from '@/components/Tabs';
+import { TokenList } from '@/components/TokenList';
+import { TokenFilter } from '@/components/TokenFilter';
 import { device } from '@/lib/device';
+import { FAVORITE_TOKENS_CACHE_KEY } from '@/lib/constants';
+import { getUniqueIdentifier } from '@/lib/utils';
+import { Token } from '@/types/token';
+import { useTokenFilter } from '@/contexts/TokenFilterContext';
 
 interface OverviewPageProps {
   tokens: Token[];
 }
 
 const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [selectedTab, setSelectedTab] = useState('all');
+  const [allTokens, setAllTokens] = useState<Token[]>([]);
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
 
-  const [favoriteTokens, setFavoriteTokens] = useState<Token[]>(tokens);
-  const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const { searchTerm, setSearchTerm } = useTokenFilter();
+
+  const getExtendedTokenList = (toks: Token[], favs: string[]): Token[] => {
+    return toks
+      .filter((token: Token) =>
+        token.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .map((token: Token) => {
+        return {
+          ...token,
+          isFavorite: favs.includes(getUniqueIdentifier(token)),
+        };
+      });
+  };
 
   useEffect(() => {
     const savedFavorites = JSON.parse(
-      localStorage.getItem('favorites') || '[]'
+      localStorage.getItem(FAVORITE_TOKENS_CACHE_KEY) || '[]'
     );
-    setFavorites(savedFavorites);
-  }, []);
+    const extended = getExtendedTokenList(tokens, savedFavorites);
+
+    setAllTokens(extended);
+  }, [tokens]);
 
   useEffect(() => {
-    setFilteredTokens(
-      tokens
-        .filter((token) =>
-          token.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .map((token: Token) => {
-          return {
-            ...token,
-            isFavorite: favorites.includes(`${token.address}-${token.chainId}`),
-          };
-        })
-    );
-  }, [searchTerm, setFilteredTokens, tokens, favorites]);
+    const filteredTokens =
+      selectedTab === 'favorites'
+        ? allTokens
+            .filter((token) => token.isFavorite)
+            .filter((token: Token) =>
+              token.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        : allTokens.filter((token: Token) =>
+            token.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
 
-  useEffect(() => {
-    setFavoriteTokens(filteredTokens.filter((token) => token.isFavorite));
-  }, [filteredTokens]);
+    setFilteredTokens(filteredTokens);
+  }, [allTokens, searchTerm, selectedTab]);
 
   return (
-    <>
-      <Title>Token Overview</Title>
-      <Container>
-        <div>
-          <ColumnTitle> All tokens </ColumnTitle>
-          <SearchInput
-            type="text"
-            placeholder="Search tokens by name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <Container>
+      <Title> Token Overview </Title>
 
-          <motion.div layout transition={{ duration: '0.6' }}>
-            <AnimatePresence>
-              <TokenList tokens={filteredTokens} />
-            </AnimatePresence>
-          </motion.div>
-        </div>
+      <Tabs selectedTab={selectedTab} onSelectTab={setSelectedTab} />
 
-        <div>
-          <ColumnTitle> Favorite tokens </ColumnTitle>
+      <TokenFilter searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          <motion.div layout transition={{ duration: '0.6' }}>
-            <AnimatePresence>
-              <TokenList tokens={favoriteTokens} />
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </Container>
-    </>
+      <motion.div layout transition={{ duration: '0.6' }}>
+        <AnimatePresence>
+          <TokenList tokens={filteredTokens} />
+        </AnimatePresence>
+      </motion.div>
+    </Container>
   );
 };
 
 const Container = styled.div`
-  display: grid;
-  gap: 24px;
-  padding: 20px;
-
   @media ${device.mobile} {
-    grid-template-columns: 1fr;
+    padding: 32px;
   }
   @media ${device.tablet} {
-    grid-template-columns: 1fr 1fr;
+    padding: 3rem;
   }
 `;
 
 const Title = styled.h1`
-  font-size: 3em;
   margin-bottom: 20px;
   text-align: center;
-`;
 
-const ColumnTitle = styled.h2`
-  font-size: 32px;
-  font-weight: 500;
-  margin-bottom: 32px;
-  text-align: left;
-`;
-
-const SearchInput = styled.input`
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 1em;
-  width: 100%;
-  box-sizing: border-box;
+  @media ${device.mobile} {
+    font-size: 3em;
+  }
+  @media ${device.tablet} {
+    font-size: 4em;
+  }
 `;
 
 export const getServerSideProps: GetServerSideProps = async () => {

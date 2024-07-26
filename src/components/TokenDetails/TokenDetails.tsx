@@ -1,12 +1,14 @@
-import { Token } from '@/types/token';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Image from 'next/image';
 import {
+  FAVORITE_TOKENS_CACHE_KEY,
   MEDIUM_IMAGE_SIZE,
   MEDIUM_PLACEHOLDER_IMAGE_URL,
 } from '@/lib/constants';
 import { colors } from '@/lib/colors';
-import { useEffect, useState } from 'react';
+import { getUniqueIdentifier } from '@/lib/utils';
+import { Token } from '@/types/token';
 
 export interface TokenDetailsProps {
   token: Token;
@@ -18,18 +20,18 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
 
   useEffect(() => {
     const savedFavorites = JSON.parse(
-      localStorage.getItem('favorites') || '[]'
+      localStorage.getItem(FAVORITE_TOKENS_CACHE_KEY) || '[]'
     );
     setFavorites(savedFavorites);
   }, []);
 
   useEffect(() => {
-    setIsFavorite(favorites.includes(`${token.address}-${token.chainId}`));
-  }, [favorites]);
+    setIsFavorite(favorites.includes(getUniqueIdentifier(token)));
+  }, [favorites, token]);
 
   const handleFavoriteIconOnClick = () => {
     let updatedFavorites = [...favorites];
-    const uniqueIdentifier: string = `${token.address}-${token.chainId}`;
+    const uniqueIdentifier: string = getUniqueIdentifier(token);
 
     if (!favorites.includes(uniqueIdentifier)) {
       updatedFavorites.push(uniqueIdentifier);
@@ -40,14 +42,17 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
     }
 
     setFavorites(updatedFavorites);
-    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    localStorage.setItem(
+      FAVORITE_TOKENS_CACHE_KEY,
+      JSON.stringify(updatedFavorites)
+    );
   };
 
   return (
     <Container>
       <TokenDetailsContainer>
         <FavoriteIcon
-          favorited={Boolean(isFavorite)}
+          $favorited={Boolean(isFavorite)}
           onClick={() => handleFavoriteIconOnClick()}
         >
           ★
@@ -74,9 +79,10 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
   );
 };
 
-const FavoriteIcon = styled.span<{ favorited: boolean }>`
+const FavoriteIcon = styled.span<{ $favorited: boolean }>`
+  color: ${({ $favorited }) => ($favorited ? colors.gold : colors.grey)};
   cursor: pointer;
-  color: ${({ favorited }) => (favorited ? 'gold' : 'grey')};
+  font-size: 32px;
 `;
 
 const Container = styled.div`
