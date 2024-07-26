@@ -1,9 +1,9 @@
-import Link from 'next/link';
 import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
 import { SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
 import { colors } from '@/lib/colors';
+import { useRouter } from 'next/router';
 
 export interface TokenListItemProps {
   token: Token;
@@ -11,22 +11,24 @@ export interface TokenListItemProps {
 }
 
 export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
+  const router = useRouter();
+
   return (
     <Container ref={lastItemRef}>
-      <Link legacyBehavior href={`/tokens/${token.address}/${token.chainId}`}>
-        <a>
-          <TokenImage
-            src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
-            alt={token.name}
-            width={40}
-            height={40}
-          />
-          <TokenDetailsContaner>
-            <TokenName>{token.name}</TokenName>
-            <TokenAddress>{token.address}</TokenAddress>
-          </TokenDetailsContaner>
-        </a>
-      </Link>
+      <a
+        onClick={() => router.push(`/tokens/${token.address}/${token.chainId}`)}
+      >
+        <TokenImage
+          src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
+          alt={token.name}
+          width={40}
+          height={40}
+        />
+        <TokenDetailsContaner>
+          <TokenName>{token.name}</TokenName>
+          <TokenAddress>{token.address}</TokenAddress>
+        </TokenDetailsContaner>
+      </a>
     </Container>
   );
 };
