@@ -17,13 +17,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-## Learn More about the Token Overview & performance
+## About the development process of the Token Overview app - from performance perspective
 
 ### Home page - Token Overview
 
-The application utilizes an external API to fetch the required data/tokens. You can find the API endpoint and documentation here: [`https://apidocs.li.fi/reference/get_tokens`](https://apidocs.li.fi/reference/get_tokens). The API returns a large dataset with thousands of tokens, making it data-heavy. We fetch this data on the server side using `getServerSideProps`, which can take some time.
+The application utilizes an external API to fetch the required data/tokens. You can find the API endpoint and documentation here: [`https://apidocs.li.fi/reference/get_tokens`](https://apidocs.li.fi/reference/get_tokens). The API returns a large dataset with thousands of tokens, making it data-heavy. We fetch this data on the server side using `getServerSideProps`, which can take some time, since it is postponing the initial load of the page.
 
-Rendering thousands of list items initially slowed down the application significantly. Below are images from our page performance tests showing the impact:
+Rendering thousands of list items (all the tokens) initially slowed down the application significantly. Below are images from our page performance tests showing the impact:
 ![Main page, without lazy-rendering](public/documentation/debug-bear-main-home-page-serverSideProps.png)
 ![Main page, without lazy-rendering](public/documentation/webpagetest-main-home-page-serverSideProps.png)
 
