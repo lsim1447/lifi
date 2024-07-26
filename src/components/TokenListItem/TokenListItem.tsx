@@ -1,9 +1,9 @@
-import Link from 'next/link';
 import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
 import { SMALL_IMAGE_SIZE, SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
 import { colors } from '@/lib/colors';
+import { useRouter } from 'next/router';
 
 export interface TokenListItemProps {
   token: Token;
@@ -11,28 +11,27 @@ export interface TokenListItemProps {
 }
 
 export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
+  const router = useRouter();
+
   return (
     <Container ref={lastItemRef}>
-      <Link legacyBehavior href={`/tokens/${token.address}/${token.chainId}`}>
-        <a>
-          <FavoriteIcon
-            $favorited={Boolean(token.isFavorite)}
-            onClick={() => {}}
-          >
-            ★
-          </FavoriteIcon>
-          <TokenImage
-            src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
-            alt={token.name}
-            width={SMALL_IMAGE_SIZE}
-            height={SMALL_IMAGE_SIZE}
-          />
-          <TokenDetailsContaner>
-            <TokenName>{token.name}</TokenName>
-            <TokenAddress>{token.address}</TokenAddress>
-          </TokenDetailsContaner>
-        </a>
-      </Link>
+      <a
+        onClick={() => router.push(`/tokens/${token.address}/${token.chainId}`)}
+      >
+        <FavoriteIcon $favorited={Boolean(token.isFavorite)} onClick={() => {}}>
+          ★
+        </FavoriteIcon>
+        <TokenImage
+          src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
+          alt={token.name}
+          width={SMALL_IMAGE_SIZE}
+          height={SMALL_IMAGE_SIZE}
+        />
+        <TokenDetailsContaner>
+          <TokenName>{token.name}</TokenName>
+          <TokenAddress>{token.address}</TokenAddress>
+        </TokenDetailsContaner>
+      </a>
     </Container>
   );
 };

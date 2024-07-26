@@ -46,7 +46,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const tokens: Token[] = data.tokens['1'].slice(
     0,
     NR_OF_STATIC_TOKEN_DETAILS_PAGES
-  ); // restrict to chain "1", first ~100 token (in order to not kill the API)
+  ); // restrict to chain "1", first ~100 tokens (in order to not kill the API)
 
   const paths = tokens.map((token) => {
     return {
