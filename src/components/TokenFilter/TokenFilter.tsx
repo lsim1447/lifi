@@ -23,7 +23,7 @@ export const TokenFilter = ({
   );
 };
 
-const Container = styled.li`
+const Container = styled.div`
   border-bottom: 1px solid ${colors.greyLight};
   margin-bottom: 10px;
   padding: 12px 0px 12px 0px;
