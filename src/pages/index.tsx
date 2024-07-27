@@ -1,26 +1,26 @@
-import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import styled from 'styled-components';
 import { Tabs } from '@/components/Tabs';
-import { TokenList } from '@/components/TokenList';
+import { TokenList, TokenListLoadingPlaceholder } from '@/components/TokenList';
 import { TokenFilter } from '@/components/TokenFilter';
 import { device } from '@/lib/device';
 import { FAVORITE_TOKENS_CACHE_KEY } from '@/lib/constants';
-import { getUniqueIdentifier } from '@/lib/utils';
+import { fetcher, getUniqueIdentifier } from '@/lib/utils';
 import { Token } from '@/types/token';
 import { useTokenFilter } from '@/contexts/TokenFilterContext';
+import useSWR from 'swr';
 
-interface OverviewPageProps {
-  tokens: Token[];
-}
-
-const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
+const OverviewPage = () => {
   const [selectedTab, setSelectedTab] = useState('all');
   const [allTokens, setAllTokens] = useState<Token[]>([]);
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
 
   const { searchTerm, setSearchTerm } = useTokenFilter();
+  const { data, error } = useSWR<{ tokens: Token[] }>(
+    `${process.env.NEXT_PUBLIC_LI_FI_API_URL}/tokens`,
+    fetcher
+  );
 
   const getExtendedTokenList = (toks: Token[], favs: string[]): Token[] => {
     return toks
@@ -36,13 +36,16 @@ const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
   };
 
   useEffect(() => {
-    const savedFavorites = JSON.parse(
-      localStorage.getItem(FAVORITE_TOKENS_CACHE_KEY) || '[]'
-    );
-    const extended = getExtendedTokenList(tokens, savedFavorites);
+    if (data) {
+      const tokens = Object.values(data.tokens).flat() as Token[];
+      const savedFavorites = JSON.parse(
+        localStorage.getItem(FAVORITE_TOKENS_CACHE_KEY) || '[]'
+      );
+      const extended = getExtendedTokenList(tokens, savedFavorites);
 
-    setAllTokens(extended);
-  }, [tokens]);
+      setAllTokens(extended);
+    }
+  }, [data]);
 
   useEffect(() => {
     const filteredTokens =
@@ -59,6 +62,8 @@ const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
     setFilteredTokens(filteredTokens);
   }, [allTokens, searchTerm, selectedTab]);
 
+  if (error) return <div> Failed to load the tokens. </div>;
+
   return (
     <Container>
       <Title> Token Overview </Title>
@@ -69,7 +74,8 @@ const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
 
       <motion.div layout transition={{ duration: '0.6' }}>
         <AnimatePresence>
-          <TokenList tokens={filteredTokens} />
+          {data && <TokenList tokens={filteredTokens} />}
+          {!data && <TokenListLoadingPlaceholder />}
         </AnimatePresence>
       </motion.div>
     </Container>
@@ -90,37 +96,11 @@ const Title = styled.h1`
   text-align: center;
 
   @media ${device.mobile} {
-    font-size: 3em;
+    font-size: 2.5em;
   }
   @media ${device.tablet} {
-    font-size: 4em;
+    font-size: 3.5em;
   }
 `;
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  let props: Record<string, any> = {
-    tokens: [],
-  };
-
-  try {
-    const response = await fetch('https://li.quest/v1/tokens', {
-      method: 'GET',
-      headers: { accept: 'application/json' },
-    });
-    const data = await response.json();
-    const tokens: Token[] = Object.values(data.tokens).flat() as Token[];
-
-    props = {
-      tokens: tokens,
-    };
-  } catch (err) {
-    throw new Error('Error during data fetch.');
-  }
-
-  return {
-    props,
-  };
-};
 
 export default OverviewPage;

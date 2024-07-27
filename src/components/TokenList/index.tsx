@@ -1,2 +1,2 @@
-export { TokenList } from './TokenList';
+export { TokenList, TokenListLoadingPlaceholder } from './TokenList';
 export type { TokenListProps } from './TokenList';

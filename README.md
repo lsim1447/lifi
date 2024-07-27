@@ -99,6 +99,12 @@ Got similar results on [`https://pagespeed.web.dev/analysis`](https://pagespeed.
 
 Adding additional complexity to the Token Details page will further widen the performance gap between the pre-rendered and non pre-rendered results.
 
+#### Updates on Token Overview page - last commit
+
+In the latest commit, I opted to transition from using `getServerSideProps` to client-side data fetching (with `swr`), eliminating the need for server-side API routes.
+
+This change aims to enhance the user experience by allowing non-dependent parts of the page, such as the title and filters, to load immediately. A spinner is displayed while tokens are being fetched. I chose this approach to avoid the additional complexity of API routes and unnecessary extra HTTP requests, given that no sensitive information is involved.
+
 ## Final words
 
 Firstly, I found this assignment to be highly engaging and enjoyable. It was a pleasure to think through and experiment with the concepts involved.
