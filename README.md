@@ -39,7 +39,7 @@ The application utilizes an external API to fetch the required data/tokens. You 
 
 ### Technical Decisions
 
-The application is built using `TypeScript` and styled-components for styling. It leverages `Server-Side Rendering (SSR)` and `Incremental Static Regeneration (ISR)` to ensure optimal performance and `SEO` benefits.
+The application is built using `TypeScript` and `styled-components` for styling. It leverages `Server-Side Rendering (SSR)` and `Incremental Static Regeneration (ISR)` to ensure optimal performance and `SEO` benefits.
 
 - `Next.js:`
   - Despite having the latest version installed, the app uses File-Based Routing (simplifies the creation of routes based on the file structure).
@@ -62,7 +62,7 @@ It's used by the Token Details page (`/token/<token.address>/<token.chainId>`).
 - `Challenge:`
   - Pre-rendering the pages at build time didn't work as expected, because of the large number of the tokens coming from the API.
   - Pre-rendering all the detail pages (over 16,000) would significantly increase build times and exceed API call limits, causing the API to freeze. To mitigate these issues, only the first N pages are pre-built. The remaining pages are generated dynamically using the `fallback` option in `getStaticPaths`, allowing for on-demand rendering of pages not pre-rendered during the build.
-  - The API limitations 'caused' another challenge/problem: since the main page contains a large token list, with a link on each item, for navigating to the Token Details page(s). `Next.js` attempted to prefetch these links, causing the API to freeze again. To resolve this, I disabled the prefetching feature.
+  - The API limitations 'caused' another challenge/problem: since the main page contains a large token list, with a link on each item, for navigating to the Token Details page(s). `Next.js` attempted to prefetch these links, causing the API to freeze again. To resolve this, I disabled the prefetching feature. (by using the Router instead of an anchor/link's `href`)
 
 ## Development process - performance perspective
 
@@ -92,6 +92,18 @@ Note: We are currently pre-rendering the first 100 token detail pages due to API
 Here are the performance results with a pre-rendered and a not pre-rendered page:
 ![Pre-rendered](public/documentation/debug-bear-main-pdp-prerendered.png)
 ![Not pre-rendered](public/documentation/debug-bear-main-pdp-NOT-prerendered.png)
+
+Got similar results on [`https://pagespeed.web.dev/analysis`](https://pagespeed.web.dev/analysis).
+![Pre-rendered](public/documentation/pdp-prerendered.png)
+![Not pre-rendered](public/documentation/pdp-not-prerendered.png)
+
+Adding additional complexity to the Token Details page will further widen the performance gap between the pre-rendered and non pre-rendered results.
+
+## Final words
+
+Firstly, I found this assignment to be highly engaging and enjoyable. It was a pleasure to think through and experiment with the concepts involved.
+
+During the process, I realized that utilizing the App Router might have been a more suitable choice given the key aspects of this assignment. In the future, I would opt for that solution.
 
 ## Deployed version on Vercel
 
