@@ -7,4 +7,5 @@ export interface Token {
   coinKey: string;
   logoURI?: string;
   priceUSD: string;
+  isFavorite?: boolean;
 }

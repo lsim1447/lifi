@@ -1,20 +1,62 @@
-import { Token } from '@/types/token';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Image from 'next/image';
 import {
+  FAVORITE_TOKENS_CACHE_KEY,
   MEDIUM_IMAGE_SIZE,
   MEDIUM_PLACEHOLDER_IMAGE_URL,
 } from '@/lib/constants';
 import { colors } from '@/lib/colors';
+import { getUniqueIdentifier } from '@/lib/utils';
+import { Token } from '@/types/token';
 
 export interface TokenDetailsProps {
   token: Token;
 }
 
 export const TokenDetails = ({ token }: TokenDetailsProps) => {
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedFavorites = JSON.parse(
+      localStorage.getItem(FAVORITE_TOKENS_CACHE_KEY) || '[]'
+    );
+    setFavorites(savedFavorites);
+  }, []);
+
+  useEffect(() => {
+    setIsFavorite(favorites.includes(getUniqueIdentifier(token)));
+  }, [favorites, token]);
+
+  const handleFavoriteIconOnClick = () => {
+    let updatedFavorites = [...favorites];
+    const uniqueIdentifier: string = getUniqueIdentifier(token);
+
+    if (!favorites.includes(uniqueIdentifier)) {
+      updatedFavorites.push(uniqueIdentifier);
+    } else {
+      updatedFavorites = updatedFavorites.filter(
+        (favoriteItem) => favoriteItem !== uniqueIdentifier
+      );
+    }
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem(
+      FAVORITE_TOKENS_CACHE_KEY,
+      JSON.stringify(updatedFavorites)
+    );
+  };
+
   return (
     <Container>
       <TokenDetailsContainer>
+        <FavoriteIcon
+          $favorited={Boolean(isFavorite)}
+          onClick={() => handleFavoriteIconOnClick()}
+        >
+          ★
+        </FavoriteIcon>
         <TokenTextInfoContainer>
           <TokenName>
             {token.name} · {token.symbol} · {token.coinKey}
@@ -36,6 +78,12 @@ export const TokenDetails = ({ token }: TokenDetailsProps) => {
     </Container>
   );
 };
+
+const FavoriteIcon = styled.span<{ $favorited: boolean }>`
+  color: ${({ $favorited }) => ($favorited ? colors.gold : colors.grey)};
+  cursor: pointer;
+  font-size: 32px;
+`;
 
 const Container = styled.div`
   display: flex;

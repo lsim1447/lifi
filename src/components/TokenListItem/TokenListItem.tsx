@@ -1,7 +1,7 @@
 import { Token } from '@/types/token';
 import styled from 'styled-components';
 import Image from 'next/image';
-import { SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
+import { SMALL_IMAGE_SIZE, SMALL_PLACEHOLDER_IMAGE_URL } from '@/lib/constants';
 import { colors } from '@/lib/colors';
 import { useRouter } from 'next/router';
 
@@ -18,11 +18,14 @@ export const TokenListItem = ({ token, lastItemRef }: TokenListItemProps) => {
       <a
         onClick={() => router.push(`/tokens/${token.address}/${token.chainId}`)}
       >
+        <FavoriteIcon $favorited={Boolean(token.isFavorite)} onClick={() => {}}>
+          ★
+        </FavoriteIcon>
         <TokenImage
           src={token?.logoURI || SMALL_PLACEHOLDER_IMAGE_URL}
           alt={token.name}
-          width={40}
-          height={40}
+          width={SMALL_IMAGE_SIZE}
+          height={SMALL_IMAGE_SIZE}
         />
         <TokenDetailsContaner>
           <TokenName>{token.name}</TokenName>
@@ -44,6 +47,10 @@ const Container = styled.li`
     gap: 32px;
     text-decoration: none;
     color: ${colors.black};
+  }
+
+  &: hover {
+    background-color: ${colors.greyLightest};
   }
 `;
 
@@ -68,4 +75,10 @@ const TokenAddress = styled.span`
   font-size: 14px;
   font-weight: 300;
   overflow-wrap: anywhere;
+`;
+
+const FavoriteIcon = styled.span<{ $favorited: boolean }>`
+  color: ${({ $favorited }) => ($favorited ? colors.gold : colors.grey)};
+  cursor: pointer;
+  font-size: 24px;
 `;

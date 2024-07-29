@@ -38,10 +38,13 @@ const NavigationContainer = styled.div`
 `;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const response = await fetch('https://li.quest/v1/tokens', {
-    method: 'GET',
-    headers: { accept: 'application/json' },
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_LI_FI_API_URL}/tokens`,
+    {
+      method: 'GET',
+      headers: { accept: 'application/json' },
+    }
+  );
   const data = await response.json();
   const tokens: Token[] = data.tokens['1'].slice(
     0,
@@ -62,7 +65,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { token, chain } = context.params!;
-  const url = `https://li.quest/v1/token?chain=${Number(chain)}&token=${token}`;
+  const url = `${process.env.NEXT_PUBLIC_LI_FI_API_URL}/token?chain=${Number(chain)}&token=${token}`;
   const response = await fetch(url, {
     method: 'GET',
     headers: { accept: 'application/json' },

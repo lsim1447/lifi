@@ -1,8 +1,10 @@
 import { Token } from '@/types/token';
 import styled from 'styled-components';
+import { Spinner } from '../Spinner';
 import { TokenListItem } from '../TokenListItem';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NR_OF_TOKENS_TO_LOAD } from '@/lib/constants';
+import { getUniqueIdentifier } from '@/lib/utils';
 
 export interface TokenListProps {
   tokens: Token[];
@@ -35,22 +37,24 @@ export const TokenList = ({ tokens }: TokenListProps) => {
     <Container>
       {visibleItems.map((token: Token, index: number) => (
         <TokenListItem
-          key={`${token.address}-${token.chainId}`}
+          key={getUniqueIdentifier(token)}
           lastItemRef={index === visibleItems.length - 1 ? lastItemRef : null}
           token={token}
         />
       ))}
-      {visibleItems.length < tokens.length && <Loader> Loading... </Loader>}
     </Container>
+  );
+};
+
+export const TokenListLoadingPlaceholder = () => {
+  return (
+    <>
+      <Spinner />
+    </>
   );
 };
 
 const Container = styled.ul`
   list-style-type: none;
   padding: 0;
-`;
-
-const Loader = styled.div`
-  text-align: center;
-  padding: 10px;
 `;

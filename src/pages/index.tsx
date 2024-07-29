@@ -1,40 +1,81 @@
-import { GetServerSideProps } from 'next';
 import { useEffect, useState } from 'react';
-import { Token } from '@/types/token';
-import styled from 'styled-components';
-import { TokenList } from '@/components/TokenList';
 import { AnimatePresence, motion } from 'framer-motion';
+import styled from 'styled-components';
+import { Tabs } from '@/components/Tabs';
+import { TokenList, TokenListLoadingPlaceholder } from '@/components/TokenList';
+import { TokenFilter } from '@/components/TokenFilter';
+import { device } from '@/lib/device';
+import { FAVORITE_TOKENS_CACHE_KEY } from '@/lib/constants';
+import { fetcher, getUniqueIdentifier } from '@/lib/utils';
+import { Token } from '@/types/token';
+import { useTokenFilter } from '@/contexts/TokenFilterContext';
+import useSWR from 'swr';
 
-interface OverviewPageProps {
-  tokens: Token[];
-}
+const OverviewPage = () => {
+  const [selectedTab, setSelectedTab] = useState('all');
+  const [allTokens, setAllTokens] = useState<Token[]>([]);
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
 
-const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
-  const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm, setSearchTerm } = useTokenFilter();
+  const { data, error } = useSWR<{ tokens: Token[] }>(
+    `${process.env.NEXT_PUBLIC_LI_FI_API_URL}/tokens`,
+    fetcher
+  );
 
-  useEffect(() => {
-    setFilteredTokens(
-      tokens.filter((token) =>
+  const getExtendedTokenList = (toks: Token[], favs: string[]): Token[] => {
+    return toks
+      .filter((token: Token) =>
         token.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    );
-  }, [searchTerm, setFilteredTokens, tokens]);
+      .map((token: Token) => {
+        return {
+          ...token,
+          isFavorite: favs.includes(getUniqueIdentifier(token)),
+        };
+      });
+  };
+
+  useEffect(() => {
+    if (data) {
+      const tokens = Object.values(data.tokens).flat() as Token[];
+      const savedFavorites = JSON.parse(
+        localStorage.getItem(FAVORITE_TOKENS_CACHE_KEY) || '[]'
+      );
+      const extended = getExtendedTokenList(tokens, savedFavorites);
+
+      setAllTokens(extended);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const filteredTokens =
+      selectedTab === 'favorites'
+        ? allTokens
+            .filter((token) => token.isFavorite)
+            .filter((token: Token) =>
+              token.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        : allTokens.filter((token: Token) =>
+            token.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+    setFilteredTokens(filteredTokens);
+  }, [allTokens, searchTerm, selectedTab]);
+
+  if (error) return <div> Failed to load the tokens. </div>;
 
   return (
     <Container>
-      <Title>Token Overview</Title>
+      <Title> Token Overview </Title>
 
-      <SearchInput
-        type="text"
-        placeholder="Search tokens by name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <Tabs selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+
+      <TokenFilter searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
       <motion.div layout transition={{ duration: '0.6' }}>
         <AnimatePresence>
-          <TokenList tokens={filteredTokens} />
+          {data && <TokenList tokens={filteredTokens} />}
+          {!data && <TokenListLoadingPlaceholder />}
         </AnimatePresence>
       </motion.div>
     </Container>
@@ -42,46 +83,24 @@ const OverviewPage = ({ tokens = [] }: OverviewPageProps) => {
 };
 
 const Container = styled.div`
-  padding: 20px;
+  @media ${device.mobile} {
+    padding: 32px;
+  }
+  @media ${device.tablet} {
+    padding: 3rem;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 3em;
   margin-bottom: 20px;
-`;
+  text-align: center;
 
-const SearchInput = styled.input`
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 1em;
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  let props: Record<string, any> = {
-    tokens: [],
-  };
-
-  try {
-    const response = await fetch('https://li.quest/v1/tokens', {
-      method: 'GET',
-      headers: { accept: 'application/json' },
-    });
-    const data = await response.json();
-    const tokens: Token[] = Object.values(data.tokens).flat() as Token[];
-
-    props = {
-      tokens: tokens,
-    };
-  } catch (err) {
-    throw new Error('Error during data fetch.');
+  @media ${device.mobile} {
+    font-size: 2.5em;
   }
-
-  return {
-    props,
-  };
-};
+  @media ${device.tablet} {
+    font-size: 3.5em;
+  }
+`;
 
 export default OverviewPage;
